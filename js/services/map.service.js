@@ -32,10 +32,11 @@ function panTo({ lat, lng, zoom = 15 }) {
 
 function lookupAddressGeo(geoOrAddress) {
     // Sample URLs:
+    console.log('geoOrAddress:', geoOrAddress)
     // const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}`
     // const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452`
 
-    var url = `https://maps.googleapis.com/maps/api/geocode/json?key=${API_KEY}&`
+    var url = `https://maps.googleapis.com/maps/api/geocode/json?key=AIzaSyBDr3g6rpFiVRuB-tgGnD9oP1Shi4uOO90&`
     url += (geoOrAddress.lat) ? `latlng=${geoOrAddress.lat},${geoOrAddress.lng}` :
         `address=${geoOrAddress}`
 
@@ -43,6 +44,7 @@ function lookupAddressGeo(geoOrAddress) {
         .then(res => res.json())
         .then(res => {
             // console.log('RES IS', res)
+            // console.log('url:', url)
             if (!res.results.length) return new Error('Found nothing')
             res = res.results[0]
             const { formatted_address, geometry } = res
@@ -94,7 +96,7 @@ function _connectGoogleApi() {
     if (window.google) return Promise.resolve()
 
     const elGoogleApi = document.createElement('script')
-    elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`
+    elGoogleApi.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBDr3g6rpFiVRuB-tgGnD9oP1Shi4uOO90`
     elGoogleApi.async = true
     document.body.append(elGoogleApi)
 
