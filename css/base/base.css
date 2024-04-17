@@ -14,7 +14,12 @@ header h1 {
     margin: 0;
 }
 
-input[type=text],input[type=number] {
+.hidden {
+    display: none;
+}
+
+input[type=text],
+input[type=number] {
     line-height: 2em;
     background-color: var(--color1);
     border: 0;
@@ -45,3 +50,6 @@ button:hover {
     font-size: .8em;
 }
 
+.modal-form>*:not(button) {
+    display: block;
+}

@@ -76,6 +76,16 @@
     </main>
     <pre class="debug" hidden></pre>
     <div class="user-msg"></div>
+    <dialog class="add-edit-modal" onsubmit="app.onSubmitAddEdit()">
+        <form method="dialog" class="modal-form">
+            <span class="name hidden"></span>
+            <input class="name-input hidden" type="text" autofocus>
+            <span class="rate"></span>
+            <input class="rate-input" type="text" autofocus value="3">
+            <button>OK</button>
+            <button type="reset" onclick="app.onCloseModal()">Cancel</button>
+        </form>
+    </dialog>
     <script type="module" src="js/app.controller.js"></script>
 </body>
 

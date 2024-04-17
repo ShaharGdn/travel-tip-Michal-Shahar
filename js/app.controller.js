@@ -5,6 +5,7 @@ import { mapService } from './services/map.service.js'
 window.onload = onInit
 
 var gUserPos = null
+var gUserAns = {}
 
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
@@ -18,6 +19,9 @@ window.app = {
     onShareLoc,
     onSetSortBy,
     onSetFilterBy,
+    handleModal,
+    onCloseModal,
+    onSubmitAddEdit
 }
 
 function onInit() {
@@ -25,8 +29,8 @@ function onInit() {
 
     mapService.initMap()
         .then(() => {
-            // onPanToTokyo()
-            mapService.addClickListener(onAddLoc)
+            mapService.addClickListener((geo) => handleModal('new', geo, null))
+            // mapService.addClickListener(onAddLoc)
         })
         .catch(err => {
             console.error('OOPs:', err)
@@ -54,10 +58,10 @@ function renderLocs(locs) {
             </p>
             <div class="loc-btns">     
                <button title="Delete" onclick="app.onRemoveLoc('${loc.id}')">🗑️</button>
-               <button title="Edit" onclick="app.onUpdateLoc('${loc.id}')">✏️</button>
+               <button title="Edit" onclick="app.handleModal('edit', null, '${loc.id}')">✏️</button>
                <button title="Select" onclick="app.onSelectLoc('${loc.id}')">🗺️</button>
-            </div>     
-        </li>`}).join('')
+               </div>     
+               </li>`}).join('')
 
     const elLocList = document.querySelector('.loc-list')
     elLocList.innerHTML = strHTML || 'No locs to show'
@@ -74,7 +78,7 @@ function renderLocs(locs) {
 function onRemoveLoc(locId) {
     const isConfirmed = confirm('Are you sure?')
     if (!isConfirmed) return
-    
+
     locService.remove(locId)
         .then(() => {
             flashMsg('Location removed')
@@ -100,13 +104,10 @@ function onSearchAddress(ev) {
         })
 }
 
-function onAddLoc(geo) {
-    const locName = prompt('Loc name', geo.address || 'Just a place')
-    if (!locName) return
-
+function onAddLoc(geo, locName, rate) {
     const loc = {
-        name: locName,
-        rate: +prompt(`Rate (1-5)`, '3'),
+        name: locName || 'Just a place',
+        rate,
         geo
     }
     locService.save(loc)
@@ -146,10 +147,9 @@ function onPanToUserPos() {
         })
 }
 
-function onUpdateLoc(locId) {
+function onUpdateLoc(locId, rate) {
     locService.getById(locId)
         .then(loc => {
-            const rate = prompt('New rate?', loc.rate)
             if (rate !== loc.rate) {
                 loc.rate = rate
                 locService.save(loc)
@@ -265,8 +265,6 @@ function renderLocStats() {
 }
 
 function handleStats(stats, selector) {
-    // stats = { low: 37, medium: 11, high: 100, total: 148 }
-    // stats = { low: 5, medium: 5, high: 5, baba: 55, mama: 30, total: 100 }
     const labels = cleanStats(stats)
     const colors = utilService.getColors()
 
@@ -284,8 +282,6 @@ function handleStats(stats, selector) {
     })
 
     colorsStr += `${colors[labels.length - 1]} ${100}%`
-    // Example:
-    // colorsStr = `purple 0%, purple 33%, blue 33%, blue 67%, red 67%, red 100%`
 
     const elPie = document.querySelector(`.${selector} .pie`)
     const style = `background-image: conic-gradient(${colorsStr})`
@@ -319,9 +315,64 @@ function getDistanceSpan(loc) {
         const latLng1 = { lat: loc.geo.lat, lng: loc.geo.lng }
         var distance = utilService.getDistance(latLng1, gUserPos, 'K');
         var distanceSpan = `<span>Distance: ${distance} KM</span>`
-    }   else {
+    } else {
         return distanceSpan = ''
     }
 
     return distanceSpan
+}
+
+function handleModal(type, geo = null, id = null) {
+    const elModal = document.querySelector('.add-edit-modal')
+    const elNameInput = elModal.querySelector('.name-input')
+    const elRateInput = elModal.querySelector('.rate-input')
+    const elNameSpan = elModal.querySelector('.name')
+    const elRateSpan = elModal.querySelector('.rate')
+
+
+    if (geo) {
+        elModal.dataset.loc = JSON.stringify(geo)
+    } else if (id) {
+        elModal.dataset.locId = id
+    }
+
+    switch (type) {
+        case 'new':
+            elNameSpan.innerText = 'Location name'
+            elRateSpan.innerText = 'Rate?'
+            elNameInput.value = geo.address
+            elNameSpan.classList.remove('hidden')
+            elNameInput.classList.remove('hidden')
+            break;
+        case 'edit':
+            console.log('edit:')
+            elRateSpan.innerText = 'New rate?'
+            locService.getById(id)
+                .then(loc => { elRateInput.value = loc.rate })
+            elNameInput.classList.add('hidden')
+            elNameSpan.classList.add('hidden')
+            break;
+    }
+
+    elModal.showModal()
+}
+
+function onSubmitAddEdit() {
+    const elModal = document.querySelector('.add-edit-modal')
+    const locName = elModal.querySelector('.name-input').value
+    const rate = elModal.querySelector('.rate-input').value
+
+    if ((elModal.dataset.loc)) {
+        const geo = JSON.parse(elModal.dataset.loc)
+        onAddLoc(geo, locName, rate)
+        return
+    } else if ((elModal.dataset.locId)) {
+        const id = elModal.dataset.locId
+        onUpdateLoc(id, rate)
+        return
+    }
+}
+
+function onCloseModal() {
+    document.querySelector('.add-edit-modal').close()
 }

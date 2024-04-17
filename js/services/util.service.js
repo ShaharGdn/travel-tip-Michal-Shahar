@@ -66,7 +66,6 @@ function elapsedTime(pastMs) {
     if (hoursPast < 24)  return `today` 
 
     return `${Math.floor(hoursPast / 24)} days ago`
-
 }
 
 function updateQueryParams(queryParamsObj) {
@@ -84,7 +83,7 @@ function updateQueryParams(queryParamsObj) {
 function getColors() {
     return ['#F44336',
     '#FFEBEE',
-    // '#FFCDD2',
+    '#FFCDD2',
     '#EF9A9A',
     '#E57373',
     '#EF5350',
