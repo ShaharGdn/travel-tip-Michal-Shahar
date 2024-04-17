@@ -2,6 +2,7 @@ export const storageService = {
     query,
     get,
     post,
+    postColor,
     put,
     remove,
 }
@@ -27,6 +28,9 @@ function post(entityType, newEntity) {
         _save(entityType, entities)
         return newEntity
     })
+}
+function postColor(entityType, newEntity) {
+        return _save(entityType, newEntity)
 }
 
 function put(entityType, updatedEntity) {

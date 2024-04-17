@@ -1,6 +1,7 @@
 import { utilService } from './services/util.service.js'
 import { locService } from './services/loc.service.js'
 import { mapService } from './services/map.service.js'
+import { storageService } from './services/async-storage.service.js'
 
 window.onload = onInit
 
@@ -21,10 +22,13 @@ window.app = {
     onSetFilterBy,
     handleModal,
     onCloseModal,
-    onSubmitAddEdit
+    onSubmitAddEdit,
+    onChooseTheme
 }
 
 function onInit() {
+    storageService.query('colorDB').then(console.log()).then(color=> changeBgColor(color))
+
     loadAndRenderLocs()
 
     mapService.initMap()
@@ -376,3 +380,57 @@ function onSubmitAddEdit() {
 function onCloseModal() {
     document.querySelector('.add-edit-modal').close()
 }
+
+async function onChooseTheme() {
+    const inputOptions = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                'Pink': "Pink",
+                'Green': "Green",
+                'Blue': "Blue"
+            })
+        }, 1000)
+    })
+
+    const { value: color } = await Swal.fire({
+        title: "Select color",
+        input: "radio",
+        inputOptions,
+        inputValidator: (value) => {
+            if (!value) {
+                return "You need to choose something!"
+            }
+        }
+    });
+
+    if (color) {
+        changeBgColor(color)
+        Swal.fire({
+            icon: "success",
+            html: `You successfully changed to: ${color}`
+        })
+        storageService.postColor('colorDB', color)
+    }
+}
+
+function changeBgColor(color) {
+    const root = document.documentElement
+    switch (color) {
+        case 'Pink':
+            root.style.setProperty('--bg1', '#fb6f92')
+            root.style.setProperty('--bg2', '#ffb3c6')
+            root.style.setProperty('--bg3', '#ff8fab')
+            break;
+        case 'Green':
+            root.style.setProperty('--bg1', '#416f5d')
+            root.style.setProperty('--bg2', '#9cbb89')
+            root.style.setProperty('--bg3', '#638262')
+            break;
+        case 'Blue':
+            root.style.setProperty('--bg1', '#476f95')
+            root.style.setProperty('--bg2', '#a3b7ca')
+            root.style.setProperty('--bg3', '#7593af')
+            break;
+    }
+}
+
