@@ -4,6 +4,8 @@ import { mapService } from './services/map.service.js'
 
 window.onload = onInit
 
+var gUserPos = null
+
 // To make things easier in this project structure 
 // functions that are called from DOM are defined on a global app object
 window.app = {
@@ -34,13 +36,14 @@ function onInit() {
 
 function renderLocs(locs) {
     const selectedLocId = getLocIdFromQueryParams()
-    // console.log('locs:', locs)
     var strHTML = locs.map(loc => {
+        const distanceSpan = getDistanceSpan(loc)
         const className = (loc.id === selectedLocId) ? 'active' : ''
         return `
         <li class="loc ${className}" data-id="${loc.id}">
             <h4>  
                 <span>${loc.name}</span>
+                ${distanceSpan}
                 <span title="${loc.rate} stars">${'★'.repeat(loc.rate)}</span>
             </h4>
             <p class="muted">
@@ -127,6 +130,8 @@ function loadAndRenderLocs() {
 function onPanToUserPos() {
     mapService.getUserPosition()
         .then(latLng => {
+            gUserPos = latLng
+            console.log('gUserPos:', gUserPos)
             mapService.panTo({ ...latLng, zoom: 15 })
             unDisplayLoc()
             loadAndRenderLocs()
@@ -168,6 +173,8 @@ function onSelectLoc(locId) {
 }
 
 function displayLoc(loc) {
+    const distanceSpan = getDistanceSpan(loc)
+
     document.querySelector('.loc.active')?.classList?.remove('active')
     document.querySelector(`.loc[data-id="${loc.id}"]`).classList.add('active')
 
@@ -177,6 +184,7 @@ function displayLoc(loc) {
     const el = document.querySelector('.selected-loc')
     el.querySelector('.loc-name').innerText = loc.name
     el.querySelector('.loc-address').innerText = loc.geo.address
+    el.querySelector('.loc-distance').innerHTML = distanceSpan
     el.querySelector('.loc-rate').innerHTML = '★'.repeat(loc.rate)
     el.querySelector('[name=loc-copier]').value = window.location
     el.classList.add('show')
@@ -298,4 +306,16 @@ function cleanStats(stats) {
         return acc
     }, [])
     return cleanedStats
+}
+
+function getDistanceSpan(loc) {
+    if (gUserPos) {
+        const latLng1 = { lat: loc.geo.lat, lng: loc.geo.lng }
+        var distance = utilService.getDistance(latLng1, gUserPos, 'K');
+        var distanceSpan = `<span>Distance: ${distance} KM</span>`
+    }   else {
+        return distanceSpan = ''
+    }
+
+    return distanceSpan
 }
