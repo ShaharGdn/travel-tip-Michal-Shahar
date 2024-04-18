@@ -350,11 +350,11 @@ function handleModal(type, geo = null, id = null) {
             break;
         case 'edit':
             console.log('edit:')
+            elNameInput.classList.add('hidden')
+            elNameSpan.classList.add('hidden')
             elRateSpan.innerText = 'New rate?'
             locService.getById(id)
                 .then(loc => { elRateInput.value = loc.rate })
-            elNameInput.classList.add('hidden')
-            elNameSpan.classList.add('hidden')
             break;
     }
 

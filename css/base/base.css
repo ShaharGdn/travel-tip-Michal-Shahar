@@ -20,7 +20,8 @@ header h1 {
 }
 
 .hidden {
-    display: none;
+    visibility: hidden;
+    height: 0px;
 }
 
 input[type=text],
