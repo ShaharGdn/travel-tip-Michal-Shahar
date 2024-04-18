@@ -9,11 +9,15 @@ TravelTip is an app that keeps a list of favorite locations
 - The app allows the user to keep and manage locations
 - The user can also search for an address and pan the map to that point
 - The User can pan the map to his own geo-location
+- The User can see the distance from his own geo-location to different locations
+
+## Other Features
+- The user can choose and set background colors by given theme
 
 ## Locations CRUDL 
 - Create – click on the map prompts for name and rate
 - Read – Selected location details (see below) 
-- Update – can update location rate
+- Update – can update location rate and name
 - Delete – can delete a location
 - List - Including filtering, sorting and grouping
 
@@ -51,7 +55,8 @@ export const locService = {
     save,
     setFilterBy,
     setSortBy,
-    getLocCountByRateMap
+    getLocCountByRateMap,
+    getLocCountByUpdatesMap
 }
 
 export const mapService = {
@@ -78,7 +83,11 @@ window.app = {
     onCopyLoc,
     onShareLoc,
     onSetSortBy,
-    onSetFilterBy
+    onSetFilterBy,
+    handleModal,
+    onCloseModal,
+    onSubmitAddEdit,
+    onChooseTheme
 }
 ```
 
@@ -87,5 +96,12 @@ Here is a sample usage:
 <button onclick="app.onCopyLoc()">Copy location</button>
 <button onclick="app.onShareLoc()">Share location</button>
 ```
+
+## API References
+- Google Maps API
+- Google GeoCoding API
+
+## Credits
+Sweetalert "Swal" library https://sweetalert2.github.io/
 
 
